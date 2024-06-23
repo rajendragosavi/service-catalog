@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	"github.com/rajendragosavi/service-catalog/internal/service-catalog/model"
 	"github.com/rajendragosavi/service-catalog/pkg/db"
 )
@@ -25,9 +26,22 @@ func (r Repository) Find(ctx context.Context, id int) (*model.ServiceCatalog, er
 }
 
 func (r *Repository) Create(ctx context.Context, obj *model.ServiceCatalog) error {
-	query := `INSERT INTO service (name, description, status, created_on, updated_on)
-				VALUES (:name, :description, :status, :created_on, :updated_on) RETURNING id;`
-	rows, err := r.Db.NamedQueryContext(ctx, query, obj)
+	query := `INSERT INTO service (service_name, description, status, creation_time, last_updated_time,deletion_time, versions)
+				VALUES (:service_name, :description, :status, :creation_time, :last_updated_time , :deletion_time , :versions) RETURNING service_id;`
+
+	// Use a map to bind parameters, including converting Versions to pq.Array
+	params := map[string]interface{}{
+		"service_name":      obj.Name,
+		"description":       obj.Description,
+		"status":            obj.Status,
+		"creation_time":     obj.CreatedOn,
+		"last_updated_time": obj.UpdatedOn,
+		"deletion_time":     obj.DeletedOn,
+		"versions":          pq.Array(obj.Versions),
+	}
+
+	// obj.Versions = pq.Array(obj.Versions).([]string)
+	rows, err := r.Db.NamedQueryContext(ctx, query, params)
 	if err != nil {
 		return db.HandleError(err)
 	}

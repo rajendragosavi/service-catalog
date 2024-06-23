@@ -2,12 +2,12 @@ package service
 
 import "github.com/rajendragosavi/service-catalog/internal/service-catalog/repository"
 
-type Service struct {
+type ServiceCatalog struct {
 	repo repository.Repository
 }
 
-func NewService(r repository.Repository) Service {
-	return Service{
+func NewService(r repository.Repository) ServiceCatalog {
+	return ServiceCatalog{
 		repo: r,
 	}
 }
