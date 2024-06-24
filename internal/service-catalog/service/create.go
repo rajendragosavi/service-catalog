@@ -10,11 +10,10 @@ import (
 )
 
 type CreateParams struct {
-	Name        string   `valid:"required"`
-	Description string   `valid:"required"`
-	Versions    []string `valid:"required"`
-	//Versions interface{}  `valid:"required"`
-	Status model.Status `valid:"required"`
+	Name        string       `valid:"required"`
+	Description string       `valid:"required"`
+	Versions    []string     `valid:"required"`
+	Status      model.Status `valid:"required"`
 }
 
 func (s *ServiceCatalog) Create(ctx context.Context, params CreateParams) (string, error) {
@@ -24,7 +23,7 @@ func (s *ServiceCatalog) Create(ctx context.Context, params CreateParams) (strin
 		return "", err // TODO error handling
 	}
 	fmt.Println("create sql txn started")
-	tx, err := s.repo.Db.BeginTxx(ctx, nil)
+	tx, err := s.repo.BeginTxx(ctx, nil)
 	if err != nil {
 		fmt.Printf("error in begin txn - %+v , error - %+v \n", tx, err)
 		return "", err // TODO error handling
@@ -32,9 +31,6 @@ func (s *ServiceCatalog) Create(ctx context.Context, params CreateParams) (strin
 	// Defer rollback in case of failure/error
 	defer tx.Rollback()
 
-	//x := pq.Array(params)
-	//	fmt.Printf("x.Value = %+v \n", x)
-	//	fmt.Printf("create Params - %+v \n", params)
 	obj := model.ServiceCatalog{
 		Name:        params.Name,
 		Description: params.Description,
