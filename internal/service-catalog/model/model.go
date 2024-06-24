@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/lib/pq"
+)
 
 type Status int
 
@@ -23,12 +27,14 @@ func (s Status) IsValid() bool {
 }
 
 type ServiceCatalog struct {
-	ID          string     `db:"service_id"`
-	Name        string     `db:"service_name"`
-	Description string     `db:"description"`
-	Status      Status     `db:"status"`
-	Versions    []string   `db:"versions"`
-	CreatedOn   time.Time  `db:"creation_time"`
-	UpdatedOn   *time.Time `db:"last_updated_time"`
-	DeletedOn   *time.Time `db:"deletion_time"`
+	ID          string `db:"service_id"`
+	Name        string `db:"service_name"`
+	Description string `db:"description"`
+	Status      Status `db:"status"`
+	//Versions    []string   `db:"versions"`
+	Versions  pq.StringArray `db:"versions"`
+	CreatedOn time.Time      `db:"creation_time"`
+	UpdatedOn *time.Time     `db:"last_updated_time"`
+	DeletedOn *time.Time     `db:"deletion_time"`
+	IsDeleted bool           `db:"is_deleted"`
 }
