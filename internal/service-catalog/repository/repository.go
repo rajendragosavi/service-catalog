@@ -62,3 +62,10 @@ func (r *Repository) Get(ctx context.Context, serviceName string) (*model.Servic
 	err := r.Db.GetContext(ctx, obj, query, serviceName)
 	return obj, db.HandleError(err)
 }
+
+func (r *Repository) List(ctx context.Context) ([]model.ServiceCatalog, error) {
+	obj := make([]model.ServiceCatalog, 0)
+	query := "SELECT * FROM service WHERE is_deleted IS FALSE"
+	err := r.Db.SelectContext(ctx, &obj, query)
+	return obj, db.HandleError(err)
+}
