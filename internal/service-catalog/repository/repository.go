@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -9,23 +10,21 @@ import (
 	"github.com/rajendragosavi/service-catalog/pkg/db"
 )
 
-type Repository struct {
-	Db *sqlx.DB
+type Repository interface {
+	Create(ctx context.Context, obj *model.ServiceCatalog) error
+	Get(ctx context.Context, serviceName string) (*model.ServiceCatalog, error)
+	List(ctx context.Context) ([]model.ServiceCatalog, error)
+	BeginTxx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
+}
+type repository struct {
+	db *sqlx.DB
 }
 
 func NewRepository(db *sqlx.DB) Repository {
-	return Repository{Db: db}
+	return &repository{db: db}
 }
 
-// func (r Repository) Find(ctx context.Context, id int) (*model.ServiceCatalog, error) {
-// 	obj := &model.ServiceCatalog{}
-// 	query := "SELECT * FROM service WHERE id = $1 AND deleted_time IS NULL"
-
-// 	err := r.Db.GetContext(ctx, &obj, query)
-// 	return obj, db.HandleError(err)
-// }
-
-func (r *Repository) Create(ctx context.Context, obj *model.ServiceCatalog) error {
+func (r *repository) Create(ctx context.Context, obj *model.ServiceCatalog) error {
 	query := `INSERT INTO service (service_name, description, status, creation_time, last_updated_time,deletion_time, versions,is_deleted)
 				VALUES (:service_name, :description, :status, :creation_time, :last_updated_time , :deletion_time , :versions, :is_deleted) RETURNING service_id;`
 
@@ -42,7 +41,7 @@ func (r *Repository) Create(ctx context.Context, obj *model.ServiceCatalog) erro
 	}
 
 	// obj.Versions = pq.Array(obj.Versions).([]string)
-	rows, err := r.Db.NamedQueryContext(ctx, query, params)
+	rows, err := r.db.NamedQueryContext(ctx, query, params)
 	if err != nil {
 		return db.HandleError(err)
 	}
@@ -56,16 +55,20 @@ func (r *Repository) Create(ctx context.Context, obj *model.ServiceCatalog) erro
 	return db.HandleError(err)
 }
 
-func (r *Repository) Get(ctx context.Context, serviceName string) (*model.ServiceCatalog, error) {
+func (r *repository) Get(ctx context.Context, serviceName string) (*model.ServiceCatalog, error) {
 	obj := &model.ServiceCatalog{}
 	query := "SELECT * FROM service WHERE service_name = $1 AND is_deleted IS FALSE"
-	err := r.Db.GetContext(ctx, obj, query, serviceName)
+	err := r.db.GetContext(ctx, obj, query, serviceName)
 	return obj, db.HandleError(err)
 }
 
-func (r *Repository) List(ctx context.Context) ([]model.ServiceCatalog, error) {
+func (r *repository) List(ctx context.Context) ([]model.ServiceCatalog, error) {
 	obj := make([]model.ServiceCatalog, 0)
 	query := "SELECT * FROM service WHERE is_deleted IS FALSE"
-	err := r.Db.SelectContext(ctx, &obj, query)
+	err := r.db.SelectContext(ctx, &obj, query)
 	return obj, db.HandleError(err)
+}
+
+func (r *repository) BeginTxx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error) {
+	return r.db.BeginTxx(ctx, opts)
 }
