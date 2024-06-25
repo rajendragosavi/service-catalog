@@ -79,6 +79,7 @@ type ServiceCatalogService interface {
 ### Pre-requisites
 
 * Go 1.22 
+* Git
 * make (To run commands with ease)
 * Docker (If you want to build and run docker container)
 * Postgres (Dont worry - If you dont have a postgres running on your machine.
@@ -94,7 +95,7 @@ This will run a postgres in docker container and make it accessible over localho
 1. Clone the github repo 
 
 	```
-	https://github.com/rajendragosavi/service-catalog
+	git clone https://github.com/rajendragosavi/service-catalog
 	```
 
 2. Build the Project:

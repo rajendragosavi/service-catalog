@@ -26,7 +26,7 @@ func (s service) List() http.HandlerFunc {
 		if len(mux.Vars(r)) == 0 {
 			listResponse, err := s.serviceCatalog.List(r.Context())
 			if err != nil {
-				s.logger.Error("error listing services - %+v \n", err)
+				s.logger.Errorf("error listing services - %+v \n", err)
 				s.respond(w, err, 0)
 				return
 			}
