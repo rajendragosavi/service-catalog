@@ -30,6 +30,7 @@ func (s *ServiceCatalog) Create(ctx context.Context, params CreateParams) (strin
 	obj := model.ServiceCatalog{
 		Name:        params.Name,
 		Description: params.Description,
+		Status:      1,
 		Versions:    params.Versions,
 		CreatedOn:   time.Now().UTC(),
 	}

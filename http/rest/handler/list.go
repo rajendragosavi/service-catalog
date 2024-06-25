@@ -22,6 +22,7 @@ type listResponse struct {
 
 func (s service) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// TODO we will add more filters here
 		if len(mux.Vars(r)) == 0 {
 			listResponse, err := s.serviceCatalog.List(r.Context())
 			if err != nil {
