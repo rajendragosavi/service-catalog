@@ -15,6 +15,8 @@ It supports addition of a service into the service catalog and retriving a servi
 
 ### System overview
 
+<img width="666" alt="Screenshot 2024-06-25 at 6 03 35 PM" src="https://github.com/rajendragosavi/service-catalog/assets/36725053/6629b6fd-5112-4cf7-a354-c9d4f81b4bdf">
+
 
 from above diagram - we have our backend service exposes APIs (add link to APIs doc) to outside world. 
 
@@ -31,6 +33,7 @@ There few reasons why we have chosen the SQL for this case -
 
 ### Code Overview
 
+<img width="1005" alt="Screenshot 2024-06-25 at 6 03 24 PM" src="https://github.com/rajendragosavi/service-catalog/assets/36725053/4cf4d00c-c288-43a6-9931-eb1b74098cdd">
 
 
 
