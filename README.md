@@ -18,13 +18,15 @@ It supports addition of a service into the service catalog and retriving a servi
 <img width="666" alt="Screenshot 2024-06-25 at 6 03 35 PM" src="https://github.com/rajendragosavi/service-catalog/assets/36725053/6629b6fd-5112-4cf7-a354-c9d4f81b4bdf">
 
 
-from above diagram - we have our backend service exposes APIs (add link to APIs doc) to outside world. 
+We have our backend service exposes APIs (add link to APIs doc) to outside world. 
+
+**SQL v/s NoSQL**
 
 We are using postgres database to store the service details. 
 
-Why SQL and not No-SQL ?
+**Why  ?**
 
-There few reasons why we have chosen the SQL for this case - 
+There few reasons why we have chosen the SQL for this case :  
 
 1. The service data is a well defined strctured data and also if in future even if we add more features/tables etc we can easily build relationships with mulitple tables. this will still be a good choice to build robust and consistent queries.
 
@@ -44,7 +46,9 @@ Here we are not exposing the repository directly to the Delivery layer, instead 
 
 This modular approach will enable us to segregate and implement model, API handlers and buisness logic easily.
 
-We have repository interface{} - which provides methods to interact with database from buisness logic
+We have following interfaces :
+
+Repository interface - which provides methods to interact with database from buisness logic
 
 ```go
 type Repository interface {
@@ -56,7 +60,7 @@ type Repository interface {
 }
 ```
 
-and Service interface{} - which provides methods to cater buiseness logic
+Service interface - which provides methods to cater buiseness logic
 
 ```go
 type ServiceCatalogService interface {
@@ -88,7 +92,41 @@ type ServiceCatalogService interface {
 * Postgres (Dont worry - If you dont have a postgres running on your machine.
 You can use docker to host postgres for you.) 
 
-Run - ``` docker run -d --name <name of the container> -p 5432:5432 -e POSTGRES_PASSWORD=<password> postgres``` 
+Run - 
+
+1. ``` docker run -d --name <name of the container> -p 5432:5432 -e POSTGRES_PASSWORD=<password> postgres``` 
+
+2. ```docker exec -it <name of the container>  psql -U postgres```
+
+3. Once you exec into the container. create sql database - service -  and connect to it - ```\c service```
+
+4. Run following SQL commands to setup table and schemas.
+
+```sql
+
+-- create new serice database
+CREATE DATABSE service;
+
+-- use service database
+USE serice;
+
+-- Enable the pgcrypto extension for UUID generation
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Create the services table
+CREATE TABLE service (
+    service_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    service_name VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(200),
+    status SMALLINT NOT NULL,
+    creation_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    last_updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deletion_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    versions TEXT[] DEFAULT '{}',
+    is_deleted BOOLEAN DEFAULT FALSE
+);
+```
+
 
 This will run a postgres in docker container and make it accessible over localhost on port 5432
  
@@ -100,6 +138,13 @@ This will run a postgres in docker container and make it accessible over localho
 	```
 	git clone https://github.com/rajendragosavi/service-catalog
 	```
+
+2. Run setup (for database configs. Edit the database password)
+
+	```
+	make setup
+	```
+
 
 2. Build the Project:
     ```
@@ -130,3 +175,83 @@ This will run a postgres in docker container and make it accessible over localho
     ```
     make clean
     ```
+
+## How to test
+
+#### create a service 
+
+sample curl request
+
+```sh
+curl --location 'http://localhost:80/api/v1/services' \
+--header 'Content-Type: application/json' \
+--data '{
+	"name":"service-2",
+	"description" : "service-2 description",
+	"versions":[
+		"1.0"
+	]
+}'
+```
+
+Response 
+
+```json
+{
+    "id": "5fdeff89-2261-4fa9-b8fd-d6117473c90d"
+}
+```
+
+#### Get a specific service 
+
+```sh
+curl --location 'http://localhost:80/api/v1/services/service-2'
+```
+
+Response
+
+```json
+{
+    "service_id": "5fdeff89-2261-4fa9-b8fd-d6117473c90d",
+    "service_name": "service-2",
+    "description": "service-2 description",
+    "created_time": "2024-06-25T07:35:03.434233Z"
+}
+```
+
+#### Get all services
+
+```sh
+curl --location 'http://localhost:80/api/v1/services'
+```
+
+Response
+
+```json
+[
+    {
+        "ID": "4d52f7af-4a54-4c84-963a-41633181b64f",
+        "Name": "service-1",
+        "Description": "service-1 description",
+        "CreatedOn": "2024-06-24T04:37:51.3456Z",
+        "UpdatedOn": null,
+        "DeletedOn": null,
+        "Versions": [
+            "1.0"
+        ],
+        "IsDeleted": false
+    },
+    {
+        "ID": "cb30cb70-50b9-4f0f-8fc8-c05ece379f89",
+        "Name": "service-2",
+        "Description": "service-2 description",
+        "CreatedOn": "2024-06-24T04:54:49.000238Z",
+        "UpdatedOn": null,
+        "DeletedOn": null,
+        "Versions": [
+            "1.0"
+        ],
+        "IsDeleted": false
+    }
+]
+```
