@@ -6,18 +6,18 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/rajendragosavi/service-catalog/internal/service-catalog/model"
 	err "github.com/rajendragosavi/service-catalog/pkg/errors"
 )
 
 func (s service) Get() http.HandlerFunc {
 	type response struct {
-		ID              string       `json:"service_id"`
-		Name            string       `json:"service_name"`
-		Description     string       `json:"description"`
-		Status          model.Status `json:"status"`
-		CreatedTime     time.Time    `json:"created_time"`
-		LastUpdatedTime *time.Time   `json:"last_updated_time,omitempty"`
+		ID          string `json:"service_id"`
+		Name        string `json:"service_name"`
+		Description string `json:"description"`
+		//Status          model.Status `json:"status"`
+		Status          int
+		CreatedTime     time.Time  `json:"created_time"`
+		LastUpdatedTime *time.Time `json:"last_updated_time,omitempty"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)

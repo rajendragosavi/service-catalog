@@ -1,10 +1,8 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/rajendragosavi/service-catalog/internal/service-catalog/model"
 	catalog "github.com/rajendragosavi/service-catalog/internal/service-catalog/service"
 )
 
@@ -13,7 +11,8 @@ type request struct {
 	Description string   `json:"description"`
 	Versions    []string `json:"versions"`
 	//Versions interface{}  `json:"versions"`
-	Status model.Status `json:"status"`
+	Status int `json:"status"`
+	// Status model.Status `json:"status"`
 }
 
 type Response struct {
@@ -31,7 +30,6 @@ func (s service) Create() http.HandlerFunc {
 			s.respond(w, err, 0)
 			return
 		}
-		fmt.Printf("http request received - %+v \n", req)
 		id, err := s.serviceCatalog.Create(r.Context(), catalog.CreateParams{
 			Name:        req.Name,
 			Description: req.Description,
