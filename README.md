@@ -63,7 +63,7 @@ type ServiceCatalogService interface {
 }
 ```
 
-### here is the list of third party libraries used :
+### List of third party libraries used 
 
 1. ``` https://github.com/gorilla/mux ``` for http request routing and handling
 2. ```https://github.com/sirupsen/logrus```  Logrus is a structured logger for Go (golang), completely API compatible with the standard library logger.
@@ -73,6 +73,56 @@ type ServiceCatalogService interface {
 6. ```https://github.com/joho/godotenv``` for managing configuration data from environment variables (we can use viper as well)
 
 
+## How to Build 
 
 
+### Pre-requisites
 
+* Go 1.22 
+* make (To run commands with ease)
+* Docker (If you want to build and run docker container)
+* Postgres (Dont worry - If you dont have a postgres running on your machine.
+You can use docker to host postgres for you.) 
+
+Run - ``` docker run -d --name <name of the container> -p 5432:5432 -e POSTGRES_PASSWORD=<password> postgres``` 
+
+This will run a postgres in docker container and make it accessible over localhost on port 5432
+ 
+
+### Installation
+
+1. Clone the github repo 
+
+	```
+	https://github.com/rajendragosavi/service-catalog
+	```
+
+2. Build the Project:
+    ```
+    make build
+    ```
+
+3. Rub the binary in local
+    ```
+    make run
+    ```
+
+4. Run Unit test
+    ```
+    make test
+    ```
+
+5. Build Docker Image
+    ```
+    make docker-build
+    ```
+
+6. Run the docker image
+    ```
+    make deploy
+    ```
+
+7. Delete the binary generated
+    ```
+    make clean
+    ```
