@@ -1,0 +1,87 @@
+definitions:
+  handler.ErrorResponse:
+    properties:
+      error_message:
+        type: string
+    type: object
+  handler.Service:
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/services:
+    get:
+      description: List all services available
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.Service'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: List all services
+      tags:
+      - services
+    post:
+      consumes:
+      - application/json
+      description: Create a new service with the provided details
+      parameters:
+      - description: Service to create
+        in: body
+        name: service
+        required: true
+        schema:
+          $ref: '#/definitions/handler.Service'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.Service'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Create a new service
+      tags:
+      - services
+  /v1/services/{name}:
+    get:
+      description: Get details of the service specified by name
+      parameters:
+      - description: Service Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Service'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Get service details
+      tags:
+      - services
+swagger: "2.0"

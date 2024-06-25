@@ -7,15 +7,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type service struct {
+type Service struct {
 	logger         *logrus.Logger
 	serviceCatalog *catalog.ServiceCatalog
 }
 
-func newHandler(lg *logrus.Logger, db *sqlx.DB) service {
+func newHandler(lg *logrus.Logger, db *sqlx.DB) Service {
 	catalogRepo := repository.NewRepository(db)
 	serviceCatalog := catalog.NewServiceCatalog(&catalogRepo) // service catalog has access to repo. Repo has methods to talk to DB model to do operations
-	return service{
+	return Service{
 		logger:         lg,
 		serviceCatalog: serviceCatalog,
 	}

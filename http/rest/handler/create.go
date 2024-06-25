@@ -19,7 +19,18 @@ type Response struct {
 	ID string `json:"id"`
 }
 
-func (s service) Create() http.HandlerFunc {
+// Create godoc
+// @Summary Create a new service
+// @Description Create a new service with the provided details
+// @Tags services
+// @Accept  json
+// @Produce  json
+// @Param   service  body  Service  true  "Service to create"
+// @Success 201 {object} Service
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /v1/services [post]
+func (s Service) Create() http.HandlerFunc {
 	s.logger.Debugln("running create service http handler")
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := request{}
