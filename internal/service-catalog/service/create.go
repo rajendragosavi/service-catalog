@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/asaskevich/govalidator"
@@ -18,15 +17,11 @@ type CreateParams struct {
 }
 
 func (s *ServiceCatalog) Create(ctx context.Context, params CreateParams) (string, error) {
-	fmt.Println("create sql opeartion started")
 	if _, err := govalidator.ValidateStruct(params); err != nil {
-		fmt.Printf("err from validator - %+v \n", err)
 		return "", err // TODO error handling
 	}
-	fmt.Println("create sql txn started")
 	tx, err := s.repo.BeginTxx(ctx, nil)
 	if err != nil {
-		fmt.Printf("error in begin txn - %+v , error - %+v \n", tx, err)
 		return "", err // TODO error handling
 	}
 	// Defer rollback in case of failure/error
@@ -38,12 +33,11 @@ func (s *ServiceCatalog) Create(ctx context.Context, params CreateParams) (strin
 		Versions:    params.Versions,
 		CreatedOn:   time.Now().UTC(),
 	}
-	fmt.Printf("sql obj for create service entry in the db - %+v \n", obj.Versions)
-	err = s.repo.Create(ctx, &obj)
+	id, err := s.repo.Create(ctx, &obj)
 	if err != nil {
-		fmt.Printf("ERRROR  - %+v \n", err)
 		return "", err // TODO error handling
 	}
+	obj.ID = id
 	err = tx.Commit()
 	return obj.ID, err
 }

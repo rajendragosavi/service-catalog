@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -26,7 +25,7 @@ func (s service) List() http.HandlerFunc {
 		if len(mux.Vars(r)) == 0 {
 			listResponse, err := s.serviceCatalog.List(r.Context())
 			if err != nil {
-				fmt.Printf("error in list -  %+v , response - %+v \n", err, listResponse)
+				s.logger.Error("error listing services - %+v \n", err)
 				s.respond(w, err, 0)
 				return
 			}

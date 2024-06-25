@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	catalog "github.com/rajendragosavi/service-catalog/internal/service-catalog/service"
@@ -31,7 +30,6 @@ func (s service) Create() http.HandlerFunc {
 			s.respond(w, err, 0)
 			return
 		}
-		fmt.Printf("http request received - %+v \n", req)
 		id, err := s.serviceCatalog.Create(r.Context(), catalog.CreateParams{
 			Name:        req.Name,
 			Description: req.Description,
