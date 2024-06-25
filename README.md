@@ -255,3 +255,28 @@ Response
     }
 ]
 ```
+
+## Feature Status
+
+<span style="color:green">&#10004;</span> We have three apis available as of now for create service , get a particular service , list all services.
+
+<span style="color:green">&#10004;</span> We have clear repository interface for database access.
+
+<span style="color:green">&#10004;</span> We have an interface for service catalog which exposes a way from http handlers to interact with database
+
+<span style="color:green">&#10004;</span> We have unit tests for repositor access which enables testing our features using mocks. I have tried to handle dependency injection at service , handler and repository level which avoids [monkey patching](https://en.wikipedia.org/wiki/Monkey_patch#:~:text=In%20computer%20programming%2C%20monkey%20patching,altering%20the%20original%20source%20code.). 
+
+<span style="color:green">&#10004;</span> We have versioned APIs. Any idea production grade service should have versioned apis.
+
+
+<span style="color:green">&#10004;</span> We have structured logging in place using logrus.
+
+<span style="color:green">&#10004;</span> Our webserver handles Graceful termination. It checks if all open transactions are completed or not before terminating the server.
+
+### Following tasks are WIP
+
+1. Adding Integration tests.
+2. Currently filtering and pagination is not implemented for list API.
+3. swagger doc is WIP in swagger-1 branch.
+4. POST to create a new service. service_name is a unique key in the database  [PENDING]
+5. PUT to update an existing service [Pending]
