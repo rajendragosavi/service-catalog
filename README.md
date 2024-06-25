@@ -275,8 +275,12 @@ Response
 
 ### Following tasks are WIP
 
-1. Adding Integration tests.
-2. Currently filtering and pagination is not implemented for list API.
-3. swagger doc is WIP in swagger-1 branch.
-4. POST to create a new service. service_name is a unique key in the database  [PENDING]
-5. PUT to update an existing service [Pending]
+🔶  Adding Integration tests.
+
+🔶  Currently filtering and pagination is not implemented for list API.
+
+🔶  swagger doc is WIP in swagger-1 branch.
+
+🔶  POST to create a new service. service_name is a unique key in the database  [PENDING]
+
+🔶  PUT to update an existing service [Pending]
