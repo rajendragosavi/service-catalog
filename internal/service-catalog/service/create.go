@@ -10,10 +10,11 @@ import (
 )
 
 type CreateParams struct {
-	Name        string       `valid:"required"`
-	Description string       `valid:"required"`
-	Versions    []string     `valid:"required"`
-	Status      model.Status `valid:"required"`
+	Name        string   `valid:"required"`
+	Description string   `valid:"required"`
+	Versions    []string `valid:"required"`
+	// Status      model.Status `valid:"required"`
+	Status int `valid:"required"`
 }
 
 func (s *ServiceCatalog) Create(ctx context.Context, params CreateParams) (string, error) {

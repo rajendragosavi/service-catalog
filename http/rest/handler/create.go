@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/rajendragosavi/service-catalog/internal/service-catalog/model"
 	catalog "github.com/rajendragosavi/service-catalog/internal/service-catalog/service"
 )
 
@@ -13,7 +12,8 @@ type request struct {
 	Description string   `json:"description"`
 	Versions    []string `json:"versions"`
 	//Versions interface{}  `json:"versions"`
-	Status model.Status `json:"status"`
+	Status int `json:"status"`
+	// Status model.Status `json:"status"`
 }
 
 type Response struct {

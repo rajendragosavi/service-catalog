@@ -25,7 +25,7 @@ func NewRepository(db *sqlx.DB) Repository {
 }
 
 func (r *repository) Create(ctx context.Context, obj *model.ServiceCatalog) error {
-	query := `INSERT INTO service (service_name, description, status, creation_time, last_updated_time,deletion_time, versions,is_deleted)
+	query := `INSERT INTO service (service_name, description, status, creation_time, last_updated_time,deletion_time, versions, is_deleted)
 				VALUES (:service_name, :description, :status, :creation_time, :last_updated_time , :deletion_time , :versions, :is_deleted) RETURNING service_id;`
 
 	// Use a map to bind parameters, including converting Versions to pq.Array
