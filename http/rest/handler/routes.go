@@ -10,11 +10,9 @@ import (
 
 func Register(r *mux.Router, lg *logrus.Logger, db *sqlx.DB) {
 	handler := newHandler(lg, db)
-	r.HandleFunc("/services", handler.Create()).Methods(http.MethodPost)
-	r.HandleFunc("/services/{name}", handler.Get()).Methods(http.MethodGet)
-	r.HandleFunc("/services", handler.List()).Methods(http.MethodGet)
-	//r.HandleFunc("/services", handler.Get()).Methods(http.MethodGet)
-	// r.HandleFunc("/services", handler.Create()).Methods(http.MethodPost)
-	// r.HandleFunc("/services", handler.Create()).Methods(http.MethodPost)
-
+	var api = r.PathPrefix("/api").Subrouter()
+	v1 := api.PathPrefix("/v1").Subrouter()
+	v1.HandleFunc("/services", handler.Create()).Methods(http.MethodPost)
+	v1.HandleFunc("/services/{name}", handler.Get()).Methods(http.MethodGet)
+	v1.HandleFunc("/services", handler.List()).Methods(http.MethodGet)
 }
