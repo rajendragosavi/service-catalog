@@ -20,6 +20,14 @@ type listResponse struct {
 	listResponse []response
 }
 
+// List godoc
+// @Summary List all services
+// @Description List all services available
+// @Tags services
+// @Produce  json
+// @Success 200 {array} Service
+// @Failure 500 {object} ErrorResponse
+// @Router /services [get]
 func (s service) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// TODO we will add more filters here
