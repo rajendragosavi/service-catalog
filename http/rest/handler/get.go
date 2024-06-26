@@ -11,11 +11,9 @@ import (
 
 func (s service) Get() http.HandlerFunc {
 	type response struct {
-		ID          string `json:"service_id"`
-		Name        string `json:"service_name"`
-		Description string `json:"description"`
-		//Status          model.Status `json:"status"`
-		Status          int
+		ID              string     `json:"service_id"`
+		Name            string     `json:"service_name"`
+		Description     string     `json:"description"`
 		CreatedTime     time.Time  `json:"created_time"`
 		LastUpdatedTime *time.Time `json:"last_updated_time,omitempty"`
 	}
@@ -38,7 +36,6 @@ func (s service) Get() http.HandlerFunc {
 			ID:              getResponse.ID,
 			Name:            getResponse.Name,
 			Description:     getResponse.Description,
-			Status:          getResponse.Status,
 			CreatedTime:     getResponse.CreatedOn,
 			LastUpdatedTime: getResponse.UpdatedOn,
 		}, http.StatusOK)

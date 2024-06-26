@@ -16,6 +16,9 @@ func (s service) respond(w http.ResponseWriter, data interface{}, status int) {
 	case errors.ErrorArgument:
 		status = http.StatusBadRequest
 		respData = ErrorResponse{ErrorMessage: v.Unwrap().Error()}
+	case errors.DuplicateKeyError:
+		status = http.StatusBadRequest
+		respData = ErrorResponse{ErrorMessage: v.Unwrap().Error()}
 	case error:
 		if http.StatusText(status) == "" {
 			status = http.StatusInternalServerError
