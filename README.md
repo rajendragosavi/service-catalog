@@ -109,6 +109,22 @@ Run -
 -- create new serice database
 CREATE DATABSE service;
 
+-- Users Table
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_name VARCHAR(50) NOT NULL UNIQUE,
+    bu_name VARCHAR(50) NOT NULL
+);
+
+
+-- UserServiceAccess Table (Join Table)
+CREATE TABLE user_service_access (
+    user_id UUID REFERENCES users(user_id),
+    service_id UUID REFERENCES service(service_id),
+    PRIMARY KEY (user_id, service_id)
+);
+
+
 -- use service database
 USE serice;
 
@@ -120,7 +136,6 @@ CREATE TABLE service (
     service_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     service_name VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(200),
-    status SMALLINT NOT NULL,
     creation_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     last_updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     deletion_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -128,6 +143,18 @@ CREATE TABLE service (
     is_deleted BOOLEAN DEFAULT FALSE
 );
 ```
+
+Data Model 
+
+
+
+
+1. We have three tables - users , service and user_service_access. 
+2. user table stores user details like userID, userName and BU.
+3. service table has service details
+4. user_service_access table is used to model the many-to-many relationship between users and services. It tracks which users have access to which services. 
+
+5. Its many-to-many relationship where a user can have access to multiple services and a service can be accessed by multiple users, you need to introduce a join table. This join table will establish the relationship between users and services.
 
 
 This will run a postgres in docker container and make it accessible over localhost on port 5432
