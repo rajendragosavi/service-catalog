@@ -2,24 +2,22 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
-	"github.com/asaskevich/govalidator"
+	// "github.com/asaskevich/govalidator"
+	//	"github.com/go-playground/validator/v10"
 	"github.com/rajendragosavi/service-catalog/internal/service-catalog/model"
 )
 
 type CreateParams struct {
-	Name        string   `valid:"required"`
-	Description string   `valid:"required"`
+	Name        string   `json:"name" validate:"required"`
+	Description string   `json:"required"`
 	Versions    []string `valid:"required"`
-	// Status      model.Status `valid:"required"`
-	Status int `valid:"required"`
 }
 
 func (s *ServiceCatalog) Create(ctx context.Context, params CreateParams) (string, error) {
-	if _, err := govalidator.ValidateStruct(params); err != nil {
-		return "", err // TODO error handling
-	}
+
 	tx, err := s.repo.BeginTxx(ctx, nil)
 	if err != nil {
 		return "", err // TODO error handling
@@ -36,6 +34,7 @@ func (s *ServiceCatalog) Create(ctx context.Context, params CreateParams) (strin
 	}
 	id, err := s.repo.Create(ctx, &obj)
 	if err != nil {
+		fmt.Printf("error from repo - %+v \n", err)
 		return "", err // TODO error handling
 	}
 	obj.ID = id
