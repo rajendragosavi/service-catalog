@@ -1,22 +1,23 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
+	"strings"
 
+	"github.com/go-playground/validator/v10"
 	catalog "github.com/rajendragosavi/service-catalog/internal/service-catalog/service"
+	customErr "github.com/rajendragosavi/service-catalog/pkg/errors"
 )
 
 type request struct {
-	Name        string   `json:"name"`
+	Name        string   `json:"name" validate:"required"`
 	Description string   `json:"description"`
 	Versions    []string `json:"versions"`
-	//Versions interface{}  `json:"versions"`
-	Status int `json:"status"`
-	// Status model.Status `json:"status"`
 }
 
 type Response struct {
-	ID string `json:"id"`
+	ID string `json:"serice_id"`
 }
 
 // Create godoc
@@ -41,15 +42,27 @@ func (s Service) Create() http.HandlerFunc {
 			s.respond(w, err, 0)
 			return
 		}
+		// Validate the request
+		validate := validator.New()
+		if err := validate.Struct(req); err != nil {
+			http.Error(w, "invalid input : name field is mandatory", http.StatusBadRequest)
+			return
+		}
+
 		id, err := s.serviceCatalog.Create(r.Context(), catalog.CreateParams{
 			Name:        req.Name,
 			Description: req.Description,
 			Versions:    req.Versions,
-			Status:      req.Status,
 		})
 		if err != nil {
 			s.logger.Errorf("could not create service. error : %+v \n", err)
-			s.respond(w, err, 0)
+			if strings.Contains(err.Error(), "pq: duplicate key value violates unique constraint") {
+				s.respond(w, customErr.DuplicateKeyError{
+					Wrapped: errors.New("service name already exist"),
+				}, 0)
+			} else {
+				s.respond(w, err, 0)
+			}
 			return
 		}
 		s.respond(w, Response{ID: id}, http.StatusOK)

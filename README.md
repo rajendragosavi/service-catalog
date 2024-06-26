@@ -18,19 +18,22 @@ It supports addition of a service into the service catalog and retriving a servi
 <img width="666" alt="Screenshot 2024-06-25 at 6 03 35 PM" src="https://github.com/rajendragosavi/service-catalog/assets/36725053/6629b6fd-5112-4cf7-a354-c9d4f81b4bdf">
 
 
-We have our backend service exposes APIs (add link to APIs doc) to outside world. 
+We have our backend service exposes APIs to clients which can be any frontend or any REST client. Upon receiving a request, corresponding web handler interacts with database to return the results
+
+
 
 **SQL v/s NoSQL**
 
-We are using postgres database to store the service details. 
+We are using postgres database which is a relational database to store the service details. 
 
 **Why  ?**
 
 There few reasons why we have chosen the SQL for this case :  
 
-1. The service data is a well defined strctured data and also if in future even if we add more features/tables etc we can easily build relationships with mulitple tables. this will still be a good choice to build robust and consistent queries.
+1. The service object which we are dealing with is a well defined strctured data also if in future even if we add more features/tables we can easily build relationships with mulitple tables. This is classic use case for relational database.
 
-2. This CRUD APIs are classic use cases for - relational databases where data consistency and ACID transactions are critical.
+2. This CRUD APIs are ideal use cases for - relational databases where data consistency and ACID transactions are critical.
+
 
 
 ### Code Overview
@@ -42,11 +45,19 @@ There few reasons why we have chosen the SQL for this case :
 
 If you see above diagram we have isolation, between Repository, Model, Service and Delivery layers.
 
-Here we are not exposing the repository directly to the Delivery layer, instead only our business service has access to it. And once we have received an API call we just expose the business service to the delivery layer. 
+```Delivery (REST, gRPC) -> Business Service -> Repository -> Model```
+
+We are not exposing database layer to the buiseness logic. Instead we create a repository interface which uses models (_"model" refers to a struct type that represents a table in your database. This struct will have fields that correspond to the columns of the table. Models are used to map the database structure to Go code, making it easier to interact with the database using Go’s type system_)  
+
+We have http handlers seperated and they are using service interface which is again another layer to connect with bbuiseness logic. The idea was to have more modular handlers.
+
+
+Whenever a request comes to any API - the http handler corresponding to the API calls corresponding service method provided by service interface, and then this service method uses methods exposes by repository interface to interact with database.
+
 
 This modular approach will enable us to segregate and implement model, API handlers and buisness logic easily.
 
-We have following interfaces :
+Go Interfaces in brief : 
 
 Repository interface - which provides methods to interact with database from buisness logic
 
@@ -69,15 +80,6 @@ type ServiceCatalogService interface {
 	Get(ctx context.Context, name string) (*model.ServiceCatalog, error)
 }
 ```
-
-### List of third party libraries used 
-
-1. ``` https://github.com/gorilla/mux ``` for http request routing and handling
-2. ```https://github.com/sirupsen/logrus```  Logrus is a structured logger for Go (golang), completely API compatible with the standard library logger.
-3. ```https://github.com/jmoiron/sqlx``` sqlx is a library which provides a set of extensions on go's standard database/sql library
-4. ```https://github.com/lib/pq``` A pure Go postgres driver for Go's database/sql package
-5. ```https://github.com/asaskevich/govalidator``` A package of validators and sanitisers for strings, structs and collections
-6. ```https://github.com/joho/godotenv``` for managing configuration data from environment variables (we can use viper as well)
 
 
 ## How to Build 
@@ -110,6 +112,13 @@ CREATE DATABSE service;
 -- use service database
 USE serice;
 
+-- Users Table
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_name VARCHAR(50) NOT NULL UNIQUE,
+    bu_name VARCHAR(50) NOT NULL
+);
+
 -- Enable the pgcrypto extension for UUID generation
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -118,14 +127,38 @@ CREATE TABLE service (
     service_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     service_name VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(200),
-    status SMALLINT NOT NULL,
     creation_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     last_updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     deletion_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     versions TEXT[] DEFAULT '{}',
     is_deleted BOOLEAN DEFAULT FALSE
 );
+
+-- UserServiceAccess Table (Join Table)
+CREATE TABLE user_service_access (
+    user_id UUID REFERENCES users(user_id),
+    service_id UUID REFERENCES service(service_id),
+    PRIMARY KEY (user_id, service_id)
+);
+
+
+
+
+
 ```
+
+Data Model 
+
+
+<img width="946" alt="Screenshot 2024-06-26 at 10 00 37 PM" src="https://github.com/rajendragosavi/service-catalog/assets/36725053/0aef86cc-6a57-4de4-8eb8-05b79e5987b3">
+
+
+1. We have three tables - users , service and user_service_access. 
+2. user table stores user details like userID, userName and BU.
+3. service table has service details
+4. user_service_access table is used to model the many-to-many relationship between users and services. It tracks which users have access to which services. 
+
+5. Its many-to-many relationship where a user can have access to multiple services and a service can be accessed by multiple users, you need to introduce a join table. This join table will establish the relationship between users and services.
 
 
 This will run a postgres in docker container and make it accessible over localhost on port 5432
@@ -180,7 +213,7 @@ This will run a postgres in docker container and make it accessible over localho
 
 #### create a service 
 
-sample curl request
+Request
 
 ```sh
 curl --location 'http://localhost:80/api/v1/services' \
@@ -204,6 +237,7 @@ Response
 
 #### Get a specific service 
 
+Request 
 ```sh
 curl --location 'http://localhost:80/api/v1/services/service-2'
 ```
@@ -220,6 +254,8 @@ Response
 ```
 
 #### Get all services
+
+Request
 
 ```sh
 curl --location 'http://localhost:80/api/v1/services'
@@ -255,3 +291,39 @@ Response
     }
 ]
 ```
+
+### Assumptions 
+
+1. Currently we assumed that anyone can query service catalog API and execute APIs to perform CRUD actions on it.
+
+
+## Feature Status
+
+✅  We have three apis available as of now for create service , get a particular service , list all services.
+
+✅ We have clear repository interface for database access.
+
+✅ We have an interface for service catalog which exposes a way from http handlers to interact with database
+
+✅ We have unit tests for repositor access which enables testing our features using mocks. I have tried to handle dependency injection at service , handler and repository level which avoids [monkey patching](https://en.wikipedia.org/wiki/Monkey_patch#:~:text=In%20computer%20programming%2C%20monkey%20patching,altering%20the%20original%20source%20code.). 
+
+✅ Any idea production grade service should have versioned apis.
+ We have versioned APIs. 
+
+✅ We have structured logging in place using logrus.
+
+✅ Our webserver handles Graceful termination. It checks if all open transactions are completed or not before terminating the server.
+
+✅ We have tried to add a data model for maintaining service and user relationship to get the services to which user has access to.
+
+### Following tasks are WIP
+
+🔶  Integration tests.
+
+🔶  Currently filtering and pagination is not implemented for list API.
+
+🔶  swagger doc is WIP in swagger-1 branch.
+
+🔶  POST to create a new service. service_name is a unique key in the database  [PENDING]
+
+🔶  PUT to update an existing service [Pending]
