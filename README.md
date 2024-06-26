@@ -261,13 +261,12 @@ Response
 ]
 ```
 
-## Feature Status
-
 ### Assumptions 
 
 1. Currently we assumed that anyone can query service catalog API and execute APIs to perform CRUD actions on it.
 
 
+## Feature Status
 
 ✅  We have three apis available as of now for create service , get a particular service , list all services.
 
