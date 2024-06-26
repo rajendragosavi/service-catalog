@@ -4,6 +4,7 @@ go 1.22.3
 
 require (
 	github.com/go-playground/validator/v10 v10.22.0
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1

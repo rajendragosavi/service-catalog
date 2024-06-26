@@ -3,28 +3,22 @@ package model
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
-//type Status int
+// User represents a user in the system
+type User struct {
+	UserID   uuid.UUID `db:"user_id" json:"user_id"`
+	UserName string    `db:"user_name" json:"user_name"`
+	BUName   string    `db:"bu_name" json:"bu_name"`
+}
 
-// const (
-// 	StatusPending Status = iota + 1
-// 	StatusInProgress
-// 	StatusDone
-// )
-
-// func (s Status) IsValid() bool {
-// 	switch s {
-// 	case StatusPending:
-// 		return true
-// 	case StatusInProgress:
-// 		return true
-// 	case StatusDone:
-// 		return true
-// 	}
-// 	return false
-// }
+// UserServiceAccess represents the access control between users and services
+type UserServiceAccess struct {
+	UserID    uuid.UUID `db:"user_id" json:"user_id"`
+	ServiceID uuid.UUID `db:"service_id" json:"service_id"`
+}
 
 type ServiceCatalog struct {
 	ID          string `db:"service_id"`

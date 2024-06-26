@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -20,6 +21,7 @@ func (s service) Get() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		name := vars["name"]
+		fmt.Printf("name value - %+v \n", name)
 		if name == "" {
 			s.respond(w, err.ErrorArgument{
 				Wrapped: errors.New("valid name must provide in path"),
