@@ -316,13 +316,12 @@ Response
 
 ✅ We have tried to add a data model for maintaining service and user relationship to get the services to which user has access to.
 
+
 ### Following tasks are WIP
 
 🔶  Integration tests.
 
 🔶  Currently filtering and pagination is not implemented for list API.
-
-🔶  swagger doc is WIP in swagger-1 branch.
 
 🔶  POST to create a new service. service_name is a unique key in the database  [PENDING]
 
