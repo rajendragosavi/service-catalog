@@ -81,6 +81,10 @@ type ServiceCatalogService interface {
 }
 ```
 
+### Assumptions 
+
+1. Currently we assumed that anyone can query service catalog API and execute APIs to perform CRUD actions on it.
+
 ## How to Build 
 
 
