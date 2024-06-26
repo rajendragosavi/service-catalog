@@ -311,9 +311,11 @@ Response
 
 ✅ Our webserver handles Graceful termination. It checks if all open transactions are completed or not before terminating the server.
 
+✅ We have tried to add a data model for maintaining service and user relationship to get the services to which user has access to.
+
 ### Following tasks are WIP
 
-🔶  Adding Integration tests.
+🔶  Integration tests.
 
 🔶  Currently filtering and pagination is not implemented for list API.
 
