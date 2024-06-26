@@ -294,7 +294,7 @@ Response
 
 ### Assumptions 
 
-1. Currently we assumed that anyone can query service catalog API and execute APIs to perform CRUD actions on it.
+1. Currently we assumed that some users are already stored inside the user table and some services are already present in the service table. We have also added data in the user_service_access table - for one user say A - has access to service B. We do not have functionality as of now to update user and service permissions with APIs
 
 
 ## Feature Status
