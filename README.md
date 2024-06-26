@@ -147,6 +147,7 @@ CREATE TABLE service (
 Data Model 
 
 
+<img width="946" alt="Screenshot 2024-06-26 at 10 00 37 PM" src="https://github.com/rajendragosavi/service-catalog/assets/36725053/0aef86cc-6a57-4de4-8eb8-05b79e5987b3">
 
 
 1. We have three tables - users , service and user_service_access. 
