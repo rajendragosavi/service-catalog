@@ -9,7 +9,7 @@ import (
 
 // Don’t have to repeat yourself every time you respond to user, instead you can use some helper functions.
 
-func (s service) respond(w http.ResponseWriter, data interface{}, status int) {
+func (s Service) respond(w http.ResponseWriter, data interface{}, status int) {
 	var respData interface{}
 	switch v := data.(type) {
 	case nil:
@@ -41,6 +41,6 @@ func (s service) respond(w http.ResponseWriter, data interface{}, status int) {
 }
 
 // it does not read to the memory, instead it will read it to the given 'v' interface.
-func (s service) decode(r *http.Request, v interface{}) error {
+func (s Service) decode(r *http.Request, v interface{}) error {
 	return json.NewDecoder(r.Body).Decode(v)
 }

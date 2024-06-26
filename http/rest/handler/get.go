@@ -10,7 +10,17 @@ import (
 	err "github.com/rajendragosavi/service-catalog/pkg/errors"
 )
 
-func (s service) Get() http.HandlerFunc {
+// Get godoc
+// @Summary Get service details
+// @Description Get details of the service specified by name
+// @Tags services
+// @Produce  json
+// @Param   name  path  string  true  "Service Name"
+// @Success 200 {object} Service
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /v1/services/{name} [get]
+func (s Service) Get() http.HandlerFunc {
 	type response struct {
 		ID              string     `json:"service_id"`
 		Name            string     `json:"service_name"`
