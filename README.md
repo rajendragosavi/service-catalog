@@ -109,24 +109,15 @@ Run -
 -- create new serice database
 CREATE DATABSE service;
 
+-- use service database
+USE serice;
+
 -- Users Table
 CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_name VARCHAR(50) NOT NULL UNIQUE,
     bu_name VARCHAR(50) NOT NULL
 );
-
-
--- UserServiceAccess Table (Join Table)
-CREATE TABLE user_service_access (
-    user_id UUID REFERENCES users(user_id),
-    service_id UUID REFERENCES service(service_id),
-    PRIMARY KEY (user_id, service_id)
-);
-
-
--- use service database
-USE serice;
 
 -- Enable the pgcrypto extension for UUID generation
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -142,6 +133,18 @@ CREATE TABLE service (
     versions TEXT[] DEFAULT '{}',
     is_deleted BOOLEAN DEFAULT FALSE
 );
+
+-- UserServiceAccess Table (Join Table)
+CREATE TABLE user_service_access (
+    user_id UUID REFERENCES users(user_id),
+    service_id UUID REFERENCES service(service_id),
+    PRIMARY KEY (user_id, service_id)
+);
+
+
+
+
+
 ```
 
 Data Model 
