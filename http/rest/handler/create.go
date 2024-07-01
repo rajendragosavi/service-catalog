@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
@@ -52,8 +53,11 @@ func (s Service) Create() http.HandlerFunc {
 		// Validate the request
 		validate := validator.New()
 		if err := validate.Struct(req); err != nil {
-			s.logger.Errorf("Invalid input data. name field is mandatory : %+v \n", err)
-			http.Error(w, "invalid input : name field is mandatory", http.StatusBadRequest)
+			s.logger.Errorf("invalid request data, name field is mandatory : %+v \n", err)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(ErrorResponse{ErrorMessage: "Invalid input data. name field is mandatory"})
+			http.Error(w, "", http.StatusBadRequest)
 			return
 		}
 
