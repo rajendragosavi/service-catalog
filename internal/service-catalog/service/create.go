@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	// "github.com/asaskevich/govalidator"
@@ -28,13 +27,11 @@ func (s *ServiceCatalog) Create(ctx context.Context, params CreateParams) (strin
 	obj := model.ServiceCatalog{
 		Name:        params.Name,
 		Description: params.Description,
-		Status:      1,
 		Versions:    params.Versions,
 		CreatedOn:   time.Now().UTC(),
 	}
 	id, err := s.repo.Create(ctx, &obj)
 	if err != nil {
-		fmt.Printf("error from repo - %+v \n", err)
 		return "", err // TODO error handling
 	}
 	obj.ID = id

@@ -8,6 +8,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	catalog "github.com/rajendragosavi/service-catalog/internal/service-catalog/service"
 	customErr "github.com/rajendragosavi/service-catalog/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 type request struct {
@@ -32,9 +33,15 @@ type Response struct {
 // @Failure 500 {object} ErrorResponse
 // @Router /v1/services [post]
 func (s Service) Create() http.HandlerFunc {
-	s.logger.Debugln("running create service http handler")
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := request{}
+		var ok bool
+		s.logger, ok = r.Context().Value("logger").(*logrus.Entry)
+		if !ok {
+			http.Error(w, "Logger not found in context", http.StatusInternalServerError)
+			return
+		}
+		s.logger.Debugln("CREATE service http handler")
 		// If there is an error, respond to the client with the error message and a 400 status code.
 		err := s.decode(r, &req)
 		if err != nil {
@@ -45,6 +52,7 @@ func (s Service) Create() http.HandlerFunc {
 		// Validate the request
 		validate := validator.New()
 		if err := validate.Struct(req); err != nil {
+			s.logger.Errorf("Invalid input data. name field is mandatory : %+v \n", err)
 			http.Error(w, "invalid input : name field is mandatory", http.StatusBadRequest)
 			return
 		}

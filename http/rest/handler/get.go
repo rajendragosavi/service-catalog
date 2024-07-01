@@ -2,12 +2,12 @@ package handler
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/mux"
 	err "github.com/rajendragosavi/service-catalog/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 // Get godoc
@@ -29,9 +29,16 @@ func (s Service) Get() http.HandlerFunc {
 		LastUpdatedTime *time.Time `json:"last_updated_time,omitempty"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
+		var ok bool
+		s.logger, ok = r.Context().Value("logger").(*logrus.Entry)
+		if !ok {
+			http.Error(w, "Logger not found in context", http.StatusInternalServerError)
+			return
+		}
+		s.logger.Debugln("GET service http handler")
 		vars := mux.Vars(r)
 		name := vars["name"]
-		fmt.Printf("name value - %+v \n", name)
+		s.logger.Debugf("service name provided - %+v \n", name)
 		if name == "" {
 			s.respond(w, err.ErrorArgument{
 				Wrapped: errors.New("valid name must provide in path"),
