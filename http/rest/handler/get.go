@@ -3,11 +3,11 @@ package handler
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
-	err "github.com/rajendragosavi/service-catalog/pkg/errors"
-	"github.com/sirupsen/logrus"
+	customErr "github.com/rajendragosavi/service-catalog/pkg/errors"
 )
 
 // Get godoc
@@ -29,26 +29,26 @@ func (s Service) Get() http.HandlerFunc {
 		LastUpdatedTime *time.Time `json:"last_updated_time,omitempty"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		var ok bool
-		s.logger, ok = r.Context().Value("logger").(*logrus.Entry)
-		if !ok {
-			http.Error(w, "Logger not found in context", http.StatusInternalServerError)
-			return
-		}
-		s.logger.Debugln("GET service http handler")
 		vars := mux.Vars(r)
 		name := vars["name"]
-		s.logger.Debugf("service name provided - %+v \n", name)
 		if name == "" {
-			s.respond(w, err.ErrorArgument{
+			s.respond(w, customErr.ErrorArgument{
 				Wrapped: errors.New("valid name must provide in path"),
 			}, 0)
 			return
 		}
 		getResponse, err := s.serviceCatalog.Get(r.Context(), name)
 		if err != nil {
-			s.logger.Errorf("could not get service. error : %+v \n", err)
-			s.respond(w, err, 0)
+			if strings.Contains(err.Error(), "object not found") {
+				s.respond(w, customErr.ObjectNotFoundError{
+					Wrapped: err,
+				}, 0)
+			} else {
+				s.logger.Errorf("could not get service. error : %+v ", err)
+				s.respond(w, customErr.SystemError{
+					Wrapped: err,
+				}, 0)
+			}
 			return
 		}
 		s.respond(w, response{

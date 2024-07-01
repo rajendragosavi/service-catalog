@@ -8,7 +8,6 @@ import (
 )
 
 type Service struct {
-	//logger         *logrus.Logger
 	logger         *logrus.Entry
 	serviceCatalog *catalog.ServiceCatalog
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/rajendragosavi/service-catalog/pkg/errors"
@@ -15,16 +16,17 @@ func (s Service) respond(w http.ResponseWriter, data interface{}, status int) {
 	case nil:
 	case errors.ErrorArgument:
 		status = http.StatusBadRequest
-		respData = ErrorResponse{ErrorMessage: v.Unwrap().Error()}
+		respData = ErrorResponse{ErrorMessage: v.Error()}
 	case errors.DuplicateKeyError:
 		status = http.StatusBadRequest
-		respData = ErrorResponse{ErrorMessage: v.Unwrap().Error()}
-	case error:
-		if http.StatusText(status) == "" {
-			status = http.StatusInternalServerError
-		} else {
-			respData = ErrorResponse{ErrorMessage: v.Error()}
-		}
+		respData = ErrorResponse{ErrorMessage: v.Error()}
+	case errors.ObjectNotFoundError:
+		status = http.StatusBadRequest
+		respData = ErrorResponse{ErrorMessage: v.Error()}
+		fmt.Printf("respData - %+v \n", respData)
+	case errors.SystemError:
+		status = http.StatusInternalServerError
+		respData = ErrorResponse{ErrorMessage: v.Error()}
 	default:
 		respData = data
 	}
