@@ -295,7 +295,7 @@ Response
 ### Assumptions 
 
 1. Currently we assumed that some users are already stored inside the user table and some services are already present in the service table. 
-2. We have also added data in the user_service_access table - for one user say A - has access to service B. We do not have functionality as of now to update user and service permissions with APIs
+2. We have also added data in the _user_service_access_ table - for one user say A - has access to service B. We do not have functionality as of now to update user and service permissions with APIs
 
 
 ## Feature Status
