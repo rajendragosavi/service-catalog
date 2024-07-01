@@ -35,8 +35,8 @@ func NewRepository(db *sqlx.DB) Repository {
 
 func (r *repository) Create(ctx context.Context, obj *model.ServiceCatalog) (string, error) {
 	var service_id string
-	row := r.db.QueryRow("INSERT INTO service (service_name, description, status, creation_time, last_updated_time,deletion_time, versions, is_deleted) VALUES ($1, $2, $3, $4 ,$5, $6 , $7, $8) RETURNING service_id",
-		obj.Name, obj.Description, obj.Status, obj.CreatedOn, obj.UpdatedOn, obj.DeletedOn, obj.Versions, obj.IsDeleted)
+	row := r.db.QueryRow("INSERT INTO service (service_name, description, creation_time, last_updated_time,deletion_time, versions, is_deleted) VALUES ($1, $2, $3, $4 ,$5, $6 , $7) RETURNING service_id",
+		obj.Name, obj.Description, obj.CreatedOn, obj.UpdatedOn, obj.DeletedOn, obj.Versions, obj.IsDeleted)
 	if err := row.Scan(&service_id); err != nil {
 		return "", db.HandleError(err)
 	}
@@ -45,14 +45,13 @@ func (r *repository) Create(ctx context.Context, obj *model.ServiceCatalog) (str
 }
 
 func (r *repository) CreatewithCommit(ctx context.Context, obj *model.ServiceCatalog) error {
-	query := `INSERT INTO service (service_name, description, status, creation_time, last_updated_time,deletion_time, versions, is_deleted)
-				VALUES (:service_name, :description, :status, :creation_time, :last_updated_time , :deletion_time , :versions, :is_deleted) RETURNING service_id;`
+	query := `INSERT INTO service (service_name, description, creation_time, last_updated_time,deletion_time, versions, is_deleted)
+				VALUES (:service_name, :description, :creation_time, :last_updated_time , :deletion_time , :versions, :is_deleted) RETURNING service_id;`
 
 	// Use a map to bind parameters, including converting Versions to pq.Array
 	params := map[string]interface{}{
 		"service_name":      obj.Name,
 		"description":       obj.Description,
-		"status":            obj.Status,
 		"creation_time":     obj.CreatedOn,
 		"last_updated_time": obj.UpdatedOn,
 		"deletion_time":     obj.DeletedOn,

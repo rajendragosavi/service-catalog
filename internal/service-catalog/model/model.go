@@ -21,14 +21,12 @@ type UserServiceAccess struct {
 }
 
 type ServiceCatalog struct {
-	ID          string `db:"service_id"`
-	Name        string `db:"service_name"`
-	Description string `db:"description"`
-	Status      int    `db:"status"`
-	//Versions    []string   `db:"versions"`
-	CreatedOn time.Time      `db:"creation_time"`
-	UpdatedOn *time.Time     `db:"last_updated_time"`
-	DeletedOn *time.Time     `db:"deletion_time"`
-	Versions  pq.StringArray `db:"versions"`
-	IsDeleted bool           `db:"is_deleted"`
+	ID          string         `db:"service_id"`
+	Name        string         `db:"service_name"`
+	Description string         `db:"description"`
+	CreatedOn   time.Time      `db:"creation_time"`
+	UpdatedOn   *time.Time     `db:"last_updated_time"`
+	DeletedOn   *time.Time     `db:"deletion_time"`
+	Versions    pq.StringArray `db:"versions"`
+	IsDeleted   bool           `db:"is_deleted"`
 }

@@ -16,9 +16,10 @@ import (
 // @host localhost:80
 // @BasePath /api/v1
 
-func Register(r *mux.Router, lg *logrus.Logger, db *sqlx.DB) {
+func Register(r *mux.Router, lg *logrus.Entry, db *sqlx.DB) {
 	handler := newHandler(lg, db)
 	var api = r.PathPrefix("/api").Subrouter()
+	api.Use(loggingMiddleware(lg))
 	v1 := api.PathPrefix("/v1").Subrouter()
 	v1.HandleFunc("/services/{name}", handler.Get()).Methods(http.MethodGet)
 	v1.HandleFunc("/services", handler.Create()).Methods(http.MethodPost)

@@ -18,7 +18,7 @@ import (
 )
 
 type Server struct {
-	logger *logrus.Logger
+	logger *logrus.Entry
 	router *mux.Router
 	config configs.Config
 }

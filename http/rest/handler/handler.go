@@ -8,11 +8,12 @@ import (
 )
 
 type Service struct {
-	logger         *logrus.Logger
+	//logger         *logrus.Logger
+	logger         *logrus.Entry
 	serviceCatalog *catalog.ServiceCatalog
 }
 
-func newHandler(lg *logrus.Logger, db *sqlx.DB) Service {
+func newHandler(lg *logrus.Entry, db *sqlx.DB) Service {
 	catalogRepo := repository.NewRepository(db)
 	serviceCatalog := catalog.NewServiceCatalog(&catalogRepo) // service catalog has access to repo. Repo has methods to talk to DB model to do operations
 	return Service{

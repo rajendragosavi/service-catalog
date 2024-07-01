@@ -2,11 +2,11 @@ package handler
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
 )
@@ -33,6 +33,13 @@ type listResponse struct {
 func (s Service) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// TODO we will add more filters here
+		var ok bool
+		s.logger, ok = r.Context().Value("logger").(*logrus.Entry)
+		if !ok {
+			http.Error(w, "Logger not found in context", http.StatusInternalServerError)
+			return
+		}
+		s.logger.Debugln("LIST service http handler")
 		if len(mux.Vars(r)) == 0 {
 			uuID := r.Header.Get("userID")
 			if uuID == "" {
@@ -55,7 +62,7 @@ func (s Service) List() http.HandlerFunc {
 			}
 			uID, err := uuid.Parse(uuID)
 			if err != nil {
-				fmt.Printf("Invalid UUID string: %v\n", err)
+				s.logger.Errorf("Invalid UUID string: %v\n", err)
 				return
 			}
 			listResponse, err := s.serviceCatalog.ListServicesForUser(r.Context(), uID)

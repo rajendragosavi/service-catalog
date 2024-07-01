@@ -31,10 +31,10 @@ func TestUserRepository_Create(t *testing.T) {
 			//When everything works as expected
 			name:    "successfully inserted the service entry in the table",
 			s:       s,
-			service: model.ServiceCatalog{Name: "test-1", Description: "test description", Status: 1, CreatedOn: time.Now().UTC(), UpdatedOn: nil, DeletedOn: nil, Versions: pq.StringArray{"1.0"}, IsDeleted: false},
+			service: model.ServiceCatalog{Name: "test-1", Description: "test description", CreatedOn: time.Now().UTC(), UpdatedOn: nil, DeletedOn: nil, Versions: pq.StringArray{"1.0"}, IsDeleted: false},
 			mock: func() {
 				rows := sqlxmock.NewRows([]string{"service_id"}).AddRow("12345")
-				mock.ExpectQuery("INSERT INTO service").WithArgs("test-1", "test description", 1, sqlxmock.AnyArg(), sqlxmock.AnyArg(), sqlxmock.AnyArg(), pq.StringArray{"1.0"}, false).WillReturnRows(rows)
+				mock.ExpectQuery("INSERT INTO service").WithArgs("test-1", "test description", sqlxmock.AnyArg(), sqlxmock.AnyArg(), sqlxmock.AnyArg(), pq.StringArray{"1.0"}, false).WillReturnRows(rows)
 			},
 			want: "12345",
 		},
@@ -95,15 +95,14 @@ func TestUserRepository_Get(t *testing.T) {
 			s:           s,
 			serviceName: "test-service",
 			mock: func() {
-				rows := sqlxmock.NewRows([]string{"service_id", "service_name", "description", "status", "creation_time", "last_updated_time", "deletion_time", "versions", "is_deleted"}).
-					AddRow("123456789", "test-1", "test-1-description", 1, creationTime, nil, nil, pq.StringArray{"1.0"}, false)
+				rows := sqlxmock.NewRows([]string{"service_id", "service_name", "description", "creation_time", "last_updated_time", "deletion_time", "versions", "is_deleted"}).
+					AddRow("123456789", "test-1", "test-1-description", creationTime, nil, nil, pq.StringArray{"1.0"}, false)
 				mock.ExpectQuery("SELECT \\* FROM service WHERE service_name = \\$1 AND is_deleted IS FALSE").WithArgs("test-service").WillReturnRows(rows)
 			},
 			want: &model.ServiceCatalog{
 				ID:          "123456789",
 				Name:        "test-1",
 				Description: "test-1-description",
-				Status:      1,
 				CreatedOn:   creationTime,
 				UpdatedOn:   nil,
 				DeletedOn:   nil,
@@ -142,7 +141,6 @@ func TestUserRepository_List(t *testing.T) {
 		ID:          "123456789",
 		Name:        "test-1",
 		Description: "test-1-description",
-		Status:      1,
 		CreatedOn:   creationTime,
 		UpdatedOn:   nil,
 		DeletedOn:   nil,
@@ -152,7 +150,6 @@ func TestUserRepository_List(t *testing.T) {
 		ID:          "123456789",
 		Name:        "test-2",
 		Description: "test-3-description",
-		Status:      1,
 		CreatedOn:   creationTime,
 		UpdatedOn:   nil,
 		DeletedOn:   nil,
@@ -174,8 +171,8 @@ func TestUserRepository_List(t *testing.T) {
 			s:               s,
 			totalNoServices: 2,
 			mock: func() {
-				rows := sqlxmock.NewRows([]string{"service_id", "service_name", "description", "status", "creation_time", "last_updated_time", "deletion_time", "versions", "is_deleted"}).
-					AddRow("123456789", "test-1", "test-1-description", 1, creationTime, nil, nil, pq.StringArray{"1.0"}, false).AddRow("123456789", "test-2", "test-2-description", 1, creationTime, nil, nil, pq.StringArray{"1.0"}, false)
+				rows := sqlxmock.NewRows([]string{"service_id", "service_name", "description", "creation_time", "last_updated_time", "deletion_time", "versions", "is_deleted"}).
+					AddRow("123456789", "test-1", "test-1-description", creationTime, nil, nil, pq.StringArray{"1.0"}, false).AddRow("123456789", "test-2", "test-2-description", creationTime, nil, nil, pq.StringArray{"1.0"}, false)
 				mock.ExpectQuery("SELECT \\* FROM service WHERE is_deleted IS FALSE").WillReturnRows(rows)
 			},
 			want: serviceList,

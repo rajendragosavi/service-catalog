@@ -1,19 +1,16 @@
 package rest
 
 import (
-	"os"
-
 	"github.com/sirupsen/logrus"
 )
 
-func NewLogger() *logrus.Logger {
+func NewLogger() *logrus.Entry {
 	log := logrus.New()
-	log.SetOutput(os.Stdout)
+	//log.SetOutput(os.Stdout)
+
 	log.SetLevel(logrus.DebugLevel)
-	log.SetFormatter(&logrus.TextFormatter{
-		ForceColors:     true,
+	log.SetFormatter(&logrus.JSONFormatter{
 		TimestampFormat: "2006-01-02 15:04:05.999999999",
-		FullTimestamp:   true,
 	})
-	return log
+	return logrus.NewEntry(log)
 }
