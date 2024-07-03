@@ -8,6 +8,9 @@ import (
 
 	"github.com/gorilla/mux"
 	customErr "github.com/rajendragosavi/service-catalog/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
+	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
 // Get godoc
@@ -29,6 +32,14 @@ func (s Service) Get() http.HandlerFunc {
 		LastUpdatedTime *time.Time `json:"last_updated_time,omitempty"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
+		var ok bool
+		s.logger, ok = r.Context().Value("logger").(*logrus.Entry)
+		if !ok {
+			http.Error(w, "Logger not found in context", http.StatusInternalServerError)
+			return
+		}
+		span := oteltrace.SpanFromContext(r.Context())
+		span.SetAttributes(attribute.String("handler", "get"))
 		vars := mux.Vars(r)
 		name := vars["name"]
 		if name == "" {

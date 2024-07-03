@@ -7,6 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
+	oteltrace "go.opentelemetry.io/otel/trace"
 
 	"github.com/gorilla/mux"
 )
@@ -40,6 +42,8 @@ func (s Service) List() http.HandlerFunc {
 			return
 		}
 		s.logger.Debugln("LIST service http handler")
+		span := oteltrace.SpanFromContext(r.Context())
+		span.SetAttributes(attribute.String("handler", "list"))
 		if len(mux.Vars(r)) == 0 {
 			uuID := r.Header.Get("userID")
 			if uuID == "" {

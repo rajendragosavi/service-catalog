@@ -10,6 +10,8 @@ import (
 	catalog "github.com/rajendragosavi/service-catalog/internal/service-catalog/service"
 	customErr "github.com/rajendragosavi/service-catalog/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
+	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
 type request struct {
@@ -42,6 +44,8 @@ func (s Service) Create() http.HandlerFunc {
 			http.Error(w, "Logger not found in context", http.StatusInternalServerError)
 			return
 		}
+		span := oteltrace.SpanFromContext(r.Context())
+		span.SetAttributes(attribute.String("handler", "create"))
 		s.logger.Debugln("CREATE service http handler")
 		// If there is an error, respond to the client with the error message and a 400 status code.
 		err := s.decode(r, &req)
