@@ -9,6 +9,8 @@ import (
 	"github.com/lib/pq"
 	"github.com/rajendragosavi/service-catalog/internal/service-catalog/model"
 	"github.com/rajendragosavi/service-catalog/pkg/db"
+
+	"go.opentelemetry.io/otel"
 )
 
 type Repository interface {
@@ -34,6 +36,9 @@ func NewRepository(db *sqlx.DB) Repository {
 }
 
 func (r *repository) Create(ctx context.Context, obj *model.ServiceCatalog) (string, error) {
+	tracer := otel.Tracer("service-catalog")
+	_, span := tracer.Start(ctx, "CreateService")
+	defer span.End()
 	var service_id string
 	row := r.db.QueryRow("INSERT INTO service (service_name, description, creation_time, last_updated_time,deletion_time, versions, is_deleted) VALUES ($1, $2, $3, $4 ,$5, $6 , $7) RETURNING service_id",
 		obj.Name, obj.Description, obj.CreatedOn, obj.UpdatedOn, obj.DeletedOn, obj.Versions, obj.IsDeleted)
@@ -45,6 +50,9 @@ func (r *repository) Create(ctx context.Context, obj *model.ServiceCatalog) (str
 }
 
 func (r *repository) CreatewithCommit(ctx context.Context, obj *model.ServiceCatalog) error {
+	tracer := otel.Tracer("service-catalog")
+	_, span := tracer.Start(ctx, "CreateServiceWithCommit")
+	defer span.End()
 	query := `INSERT INTO service (service_name, description, creation_time, last_updated_time,deletion_time, versions, is_deleted)
 				VALUES (:service_name, :description, :creation_time, :last_updated_time , :deletion_time , :versions, :is_deleted) RETURNING service_id;`
 
@@ -75,6 +83,9 @@ func (r *repository) CreatewithCommit(ctx context.Context, obj *model.ServiceCat
 }
 
 func (r *repository) Get(ctx context.Context, serviceName string) (*model.ServiceCatalog, error) {
+	tracer := otel.Tracer("service-catalog")
+	_, span := tracer.Start(ctx, "Get")
+	defer span.End()
 	obj := &model.ServiceCatalog{}
 	query := "SELECT * FROM service WHERE service_name = $1 AND is_deleted IS FALSE"
 	err := r.db.GetContext(ctx, obj, query, serviceName)
@@ -82,6 +93,9 @@ func (r *repository) Get(ctx context.Context, serviceName string) (*model.Servic
 }
 
 func (r *repository) List(ctx context.Context) ([]model.ServiceCatalog, error) {
+	tracer := otel.Tracer("service-catalog")
+	_, span := tracer.Start(ctx, "List")
+	defer span.End()
 	obj := make([]model.ServiceCatalog, 0)
 	query := "SELECT * FROM service WHERE is_deleted IS FALSE"
 	err := r.db.SelectContext(ctx, &obj, query)
@@ -95,12 +109,18 @@ func (r *repository) BeginTxx(ctx context.Context, opts *sql.TxOptions) (*sqlx.T
 /// *******************
 
 func (r *repository) CreateUser(ctx context.Context, user *model.User) error {
+	tracer := otel.Tracer("service-catalog")
+	_, span := tracer.Start(ctx, "CreateUser")
+	defer span.End()
 	query := `INSERT INTO users (user_id, user_name, bu_name) VALUES ($1, $2, $3)`
 	_, err := r.db.ExecContext(ctx, query, user.UserID, user.UserName, user.BUName)
 	return err
 }
 
 func (r *repository) CheckUserExists(ctx context.Context, userID string) (bool, error) {
+	tracer := otel.Tracer("service-catalog")
+	_, span := tracer.Start(ctx, "CheckUserExists")
+	defer span.End()
 	var exists bool
 	query := `SELECT EXISTS (SELECT 1 FROM users WHERE user_id = $1)`
 	err := r.db.GetContext(ctx, &exists, query, userID)
@@ -110,12 +130,18 @@ func (r *repository) CheckUserExists(ctx context.Context, userID string) (bool, 
 	return exists, nil
 }
 func (r *repository) GrantAccess(ctx context.Context, userID, serviceID uuid.UUID) error {
+	tracer := otel.Tracer("service-catalog")
+	_, span := tracer.Start(ctx, "GrantAccess")
+	defer span.End()
 	query := `INSERT INTO user_service_access (user_id, service_id) VALUES ($1, $2)`
 	_, err := r.db.ExecContext(ctx, query, userID, serviceID)
 	return err
 }
 
 func (r *repository) CheckAccess(ctx context.Context, userID, serviceID uuid.UUID) (bool, error) {
+	tracer := otel.Tracer("service-catalog")
+	_, span := tracer.Start(ctx, "CheckAccess")
+	defer span.End()
 	query := `SELECT COUNT(*) FROM user_service_access WHERE user_id = $1 AND service_id = $2`
 	var count int
 	err := r.db.GetContext(ctx, &count, query, userID, serviceID)
@@ -123,6 +149,9 @@ func (r *repository) CheckAccess(ctx context.Context, userID, serviceID uuid.UUI
 }
 
 func (r *repository) ListServicesForUser(ctx context.Context, userID uuid.UUID) ([]model.ServiceCatalog, error) {
+	tracer := otel.Tracer("service-catalog")
+	_, span := tracer.Start(ctx, "ListServicesForUser")
+	defer span.End()
 	var services []model.ServiceCatalog
 	query := `SELECT s.* 
               FROM user_service_access usa
@@ -133,6 +162,9 @@ func (r *repository) ListServicesForUser(ctx context.Context, userID uuid.UUID) 
 }
 
 func (r *repository) ListUsersWithAccess(ctx context.Context, serviceID uuid.UUID) ([]model.User, error) {
+	tracer := otel.Tracer("service-catalog")
+	_, span := tracer.Start(ctx, "ListUsersWithAccess")
+	defer span.End()
 	var users []model.User
 	query := `SELECT u.* 
               FROM user_service_access usa

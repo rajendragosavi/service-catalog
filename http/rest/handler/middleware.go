@@ -3,10 +3,10 @@ package handler
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,10 +18,10 @@ const (
 func loggingMiddleware(lg *logrus.Entry) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			path := r.URL.Path
-			httpRequestsTotal.WithLabelValues(path).Inc()
-			timer := prometheus.NewTimer(httpRequestDuration.WithLabelValues(path))
-			defer timer.ObserveDuration()
+			// path := r.URL.Path
+			// httpRequestsTotal.WithLabelValues(path).Inc()
+			// timer := prometheus.NewTimer(httpRequestDuration.WithLabelValues(path))
+			// defer timer.ObserveDuration()
 			requestID := r.Header.Get("X-Request-ID")
 			if requestID == "" {
 				requestID = uuid.New().String() // generate a new UUID if requestID is not provided
@@ -51,8 +51,22 @@ func loggingMiddleware(lg *logrus.Entry) mux.MiddlewareFunc {
 
 func tracingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx, span := tracer.Start(r.Context(), r.URL.Path)
-		defer span.End()
-		next.ServeHTTP(w, r.WithContext(ctx))
+		// ctx, span := tracer.Start(r.Context(), r.URL.Path)
+		// defer span.End()
+		// next.ServeHTTP(w, r.WithContext(ctx))
+		start := time.Now()
+		next.ServeHTTP(w, r)
+		duration := time.Since(start).Seconds()
+
+		status := http.StatusOK
+		if rw, ok := w.(interface{ Status() int }); ok {
+			status = rw.Status()
+		}
+
+		method := r.Method
+		endpoint := r.URL.Path
+
+		httpRequestsTotal.WithLabelValues(method, endpoint, http.StatusText(status)).Inc()
+		httpRequestDuration.WithLabelValues(method, endpoint).Observe(duration)
 	})
 }

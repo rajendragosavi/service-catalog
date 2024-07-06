@@ -33,5 +33,5 @@ func Register(r *mux.Router, lg *logrus.Entry, db *sqlx.DB) {
 	v1.HandleFunc("/services", handler.List()).Methods(http.MethodGet)
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 	// Expose the registered metrics via HTTP
-	http.Handle("/metrics", promhttp.Handler())
+	v1.Handle("/metrics", promhttp.Handler())
 }

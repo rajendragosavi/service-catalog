@@ -25,7 +25,7 @@ WORKDIR /root
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/service-catalog .
 
-# Expose port 8080 to the outside world
+# Expose port 80 to the outside world
 EXPOSE 80
 
 # Command to run the executable
